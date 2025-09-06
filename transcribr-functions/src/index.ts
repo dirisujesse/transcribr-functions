@@ -12,14 +12,26 @@ import { PaginationDto } from "./models/dto/pagination.dto";
 
 admin.initializeApp();
 const db = new WaitlistService(admin.firestore());
+const allowedOrigins = ["https://transcribr.org", /\.transcribr\.org$/];
+const allowedMethods = [
+  "GET",
+  "HEAD",
+  "PUT",
+  "PATCH",
+  "POST",
+  "DELETE",
+  "OPTIONS",
+];
 
 const cors = corsLib({
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  origin: "https//transcribr.org, https://app.transcribr.org",
-  preflightContinue: true,
+  methods: allowedMethods,
+  origin: allowedOrigins,
 });
 
 export const joinWaitlist = functions.https.onRequest(async (req, res) => {
+  res.set("Access-Control-Allow-Origin", allowedOrigins.join(","));
+  res.set("Access-Control-Allow-Methods", allowedMethods.join(","));
+  res.set("Access-Control-Allow-Headers", "*");
   return await cors(req, res, async () => {
     if (req.method !== "POST") {
       return res.status(405).json({
@@ -65,6 +77,9 @@ export const joinWaitlist = functions.https.onRequest(async (req, res) => {
 });
 
 export const getIntendees = functions.https.onRequest(async (req, res) => {
+  res.set("Access-Control-Allow-Origin", allowedOrigins.join(","));
+  res.set("Access-Control-Allow-Methods", allowedMethods.join(","));
+  res.set("Access-Control-Allow-Headers", "*");
   return await cors(req, res, async () => {
     if (req.method !== "GET") {
       return res.status(405).json({
