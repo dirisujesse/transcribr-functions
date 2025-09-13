@@ -171,17 +171,17 @@ export const sendVerifyEmail = functions.https.onRequest(
         });
       }
       try {
-        const { to, name, link } = req.body;
-        if (!to || !name || !link) {
+        const { to, name, otp } = req.body;
+        if (!to || !name || !otp) {
           return res.status(400).json({
             error: "INVALID PAYLOAD",
-            message: "Missing 'to', 'name', or 'link' in request body",
+            message: "Missing 'to', 'name', or 'otp' in request body",
           });
         }
         const mailService = new MailService(
           process.env.APP_EMAIL_PASSWORD ?? ""
         );
-        await mailService.sendVerifyEmail(to, name, link);
+        await mailService.sendVerifyEmail(to, name, otp);
         return res
           .status(200)
           .json({ message: "Verification email sent successfully." });
@@ -206,8 +206,8 @@ export const sendVerifiedEmail = functions.https.onRequest(
         });
       }
       try {
-        const { to, name, link } = req.body;
-        if (!to || !name || !link) {
+        const { to, name } = req.body;
+        if (!to || !name) {
           return res.status(400).json({
             error: "INVALID PAYLOAD",
             message: "Missing 'to' or 'name' in request body",
@@ -276,17 +276,17 @@ export const sendPasswordResetEmail = functions.https.onRequest(
         });
       }
       try {
-        const { to, name, link } = req.body;
-        if (!to || !name || !link) {
+        const { to, name, otp } = req.body;
+        if (!to || !name || !otp) {
           return res.status(400).json({
             error: "INVALID PAYLOAD",
-            message: "Missing 'to', 'name', or 'link' in request body",
+            message: "Missing 'to', 'name', or 'otp' in request body",
           });
         }
         const mailService = new MailService(
           process.env.APP_EMAIL_PASSWORD ?? ""
         );
-        await mailService.sendPasswordResetEmail(to, name, link);
+        await mailService.sendPasswordResetEmail(to, name, otp);
         return res
           .status(200)
           .json({ message: "Password reset email sent successfully." });

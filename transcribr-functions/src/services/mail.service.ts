@@ -42,8 +42,8 @@ export class MailService {
     this.sendMail(to, "Welcome to Transcribr!", html);
   }
 
-  sendVerifyEmail(to: string, name: string, link: string) {
-    const html = this.templateService.getEmailVerifyTemplate(name, link);
+  sendVerifyEmail(to: string, name: string, otp: string) {
+    const html = this.templateService.getEmailVerifyTemplate(name, otp);
     this.sendMail(to, "Verify Your Email Address for Transcribr", html);
   }
 
@@ -66,8 +66,8 @@ export class MailService {
     this.sendMail(to, "Your Transcribr Transcription is Ready!", html);
   }
 
-  sendPasswordResetEmail(to: string, name: string, link: string) {
-    const html = this.templateService.getPasswordResetTemplate(name, link);
+  sendPasswordResetEmail(to: string, name: string, otp: string) {
+    const html = this.templateService.getPasswordResetTemplate(name, otp);
     this.sendMail(to, "Transcribr Password Reset Request", html);
   }
 

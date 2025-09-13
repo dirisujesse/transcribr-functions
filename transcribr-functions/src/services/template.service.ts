@@ -83,7 +83,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Welcome to Transcribr!</h1>
                         </td>
                     </tr>
@@ -117,10 +117,10 @@ export class TemplateService {
     return template(data);
   }
 
-  getEmailVerifyTemplate(name: string, link: string): string {
+  getEmailVerifyTemplate(name: string, otp: string): string {
     const data = {
       name,
-      link,
+      otp,
       year: this.year,
     };
 
@@ -128,7 +128,7 @@ export class TemplateService {
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Verify Your Email Address for Transcribr</title>
+        <title>Your Transcribr Verification Code</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -140,6 +140,7 @@ export class TemplateService {
                     font-weight: 400;
                     src: local('Inter Regular'), local('Inter-Regular'), url(https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQsPP.woff2) format('woff2');
                 }
+
                 @font-face {
                     font-family: 'Inter';
                     font-style: normal;
@@ -147,12 +148,45 @@ export class TemplateService {
                     src: local('Inter Bold'), local('Inter-Bold'), url(https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQsPP.woff2) format('woff2');
                 }
             }
-            body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-            table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-            img { -ms-interpolation-mode: bicubic; }
-            img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-            table { border-collapse: collapse !important; }
-            body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; font-family: 'Inter', Helvetica, Arial, sans-serif; }
+
+            body,
+            table,
+            td,
+            a {
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+            }
+
+            table,
+            td {
+                mso-table-lspace: 0pt;
+                mso-table-rspace: 0pt;
+            }
+
+            img {
+                -ms-interpolation-mode: bicubic;
+            }
+
+            img {
+                border: 0;
+                height: auto;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+            }
+
+            table {
+                border-collapse: collapse !important;
+            }
+
+            body {
+                height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                font-family: 'Inter', Helvetica, Arial, sans-serif;
+            }
+
             a[x-apple-data-detectors] {
                 color: inherit !important;
                 text-decoration: none !important;
@@ -161,16 +195,44 @@ export class TemplateService {
                 font-weight: inherit !important;
                 line-height: inherit !important;
             }
+
             @media screen and (max-width: 525px) {
-                .wrapper { width: 100% !important; max-width: 100% !important; }
-                .responsive-table { width: 100% !important; }
-                .padding { padding: 10px 5% 10px 5% !important; }
-                .section-padding { padding: 0 15px 50px 15px !important; }
+                .wrapper {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                }
+
+                .responsive-table {
+                    width: 100% !important;
+                }
+
+                .padding {
+                    padding: 10px 5% 10px 5% !important;
+                }
+
+                .section-padding {
+                    padding: 0 15px 50px 15px !important;
+                }
             }
+
+            .otp-container {
+                background-color: #f0f0f0;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .otp-code {
+                font-size: 32px;
+                font-weight: 700;
+                letter-spacing: 5px;
+                color: #6C63FF;
+            }
+
             .button {
                 display: inline-block;
                 padding: 12px 24px;
-                background-color: #6C63FF; /* Transcribr primary purple */
+                background-color: #6C63FF;
                 color: #ffffff;
                 font-size: 16px;
                 font-weight: bold;
@@ -178,45 +240,62 @@ export class TemplateService {
                 border-radius: 8px;
                 transition: background-color 0.3s ease;
             }
+
             .button:hover {
                 background-color: #554EDC;
             }
         </style>
     </head>
+
     <body style="margin: 0 !important; padding: 0 !important;">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr>
-            <td bgcolor="#f8f8f8" align="center" style="padding: 20px 15px 20px 15px;">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-                    <tr>
-                        <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
-                            <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Verify Your Email</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px;">
-                            <p style="margin: 0;">Hi {{name}},</p>
-                            <p style="margin: 20px 0 0 0;">Thank you for signing up with Transcribr!</p>
-                            <p style="margin: 20px 0 0 0;">To activate your account and start transforming your audio, please verify your email address by clicking the link below:</p>
-                            <p style="margin: 30px 0 0 0; text-align: center;">
-                                <a href="{{link}}" target="_blank" class="button">Verify Email Address</a>
-                            </p>
-                            <p style="margin: 40px 0 0 0;">This link will expire in 24 hours. If you didn't sign up for Transcribr, please disregard this email.</p>
-                            <p style="margin: 20px 0 0 0;">Thanks,</p>
-                            <p style="margin: 0;">The Transcribr Team</p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td bgcolor="#f8f8f8" align="center" style="padding: 20px 30px 20px 30px; color: #999999; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 20px;">
-                            <p style="margin: 0;">&copy; {{year}} Transcribr. All rights reserved.</p>
-                            <p style="margin: 5px 0 0 0;"><a href="https://transcribr.org" target="_blank" style="color: #999999; text-decoration: none;">transcribr.org</a></p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <td bgcolor="#f8f8f8" align="center" style="padding: 20px 15px 20px 15px;">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+                        <tr>
+                            <td bgcolor="#ffffff" align="center" valign="top"
+                                style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
+                                <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                                <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Your Verification Code
+                                </h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td bgcolor="#ffffff" align="left"
+                                style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px;">
+                                <p style="margin: 0;">Hi {{name}},</p>
+                                <p style="margin: 20px 0 0 0;">Thank you for signing up with Transcribr. Please use the
+                                    following code to verify your email address:</p>
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+                                    <tr>
+                                        <td align="center">
+                                            <div class="otp-container">
+                                                <p style="margin: 0; font-size: 14px; color: #999999;">Your verification
+                                                    code is:</p>
+                                                <p class="otp-code" style="margin: 10px 0 0 0;">{{otp}}</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p style="margin: 20px 0 0 0;">This code will expire in 5 minutes. Please do not
+                                    share this code with anyone. If you didn't sign up for Transcribr, please disregard this
+                                    email.</p>
+                                <p style="margin: 20px 0 0 0;">Thanks,</p>
+                                <p style="margin: 0;">The Transcribr Team</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td bgcolor="#f8f8f8" align="center"
+                                style="padding: 20px 30px 20px 30px; color: #999999; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 20px;">
+                                <p style="margin: 0;">&copy; {{year}} Transcribr. All rights reserved.</p>
+                                <p style="margin: 5px 0 0 0;"><a href="https://transcribr.org" target="_blank"
+                                        style="color: #999999; text-decoration: none;">transcribr.org</a></p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </body>
     </html>
     `;
@@ -297,7 +376,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Account Fully Verified!</h1>
                         </td>
                     </tr>
@@ -405,7 +484,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Your Transcript is Ready!</h1>
                         </td>
                     </tr>
@@ -439,10 +518,10 @@ export class TemplateService {
     return template(data);
   }
 
-  getPasswordResetTemplate(name: string, link: string): string {
+  getPasswordResetTemplate(name: string, otp: string): string {
     const data = {
       name,
-      link,
+      otp,
       year: this.year,
     };
 
@@ -450,7 +529,7 @@ export class TemplateService {
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Transcribr Password Reset Request</title>
+        <title>Your Transcribr Password Reset Code</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -489,10 +568,22 @@ export class TemplateService {
                 .padding { padding: 10px 5% 10px 5% !important; }
                 .section-padding { padding: 0 15px 50px 15px !important; }
             }
+            .otp-container {
+                background-color: #f0f0f0;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+            }
+            .otp-code {
+                font-size: 32px;
+                font-weight: 700;
+                letter-spacing: 5px;
+                color: #6C63FF;
+            }
             .button {
                 display: inline-block;
                 padding: 12px 24px;
-                background-color: #6C63FF; /* Transcribr primary purple */
+                background-color: #6C63FF;
                 color: #ffffff;
                 font-size: 16px;
                 font-weight: bold;
@@ -512,20 +603,25 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
-                            <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Password Reset</h1>
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Password Reset Code</h1>
                         </td>
                     </tr>
                     <tr>
                         <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px;">
                             <p style="margin: 0;">Hi {{name}},</p>
-                            <p style="margin: 20px 0 0 0;">We received a request to reset the password for your Transcribr account.</p>
-                            <p style="margin: 20px 0 0 0;">To reset your password, please click on the link below:</p>
-                            <p style="margin: 30px 0 0 0; text-align: center;">
-                                <a href="{{link}}" target="_blank" class="button">Reset Your Password</a>
-                            </p>
-                            <p style="margin: 40px 0 0 0;">This link will expire in 30 minutes. If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
-                            <p style="margin: 20px 0 0 0;">For security reasons, do not share this link with anyone.</p>
+                            <p style="margin: 20px 0 0 0;">We received a request to reset your Transcribr password. Please use the following one-time code to proceed:</p>
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <div class="otp-container">
+                                            <p style="margin: 0; font-size: 14px; color: #999999;">Your password reset code is:</p>
+                                            <p class="otp-code" style="margin: 10px 0 0 0;">{{otp}}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="margin: 20px 0 0 0;">This code is valid for a limited time. For security reasons, do not share this code with anyone. If you did not request a password reset, please ignore this email.</p>
                             <p style="margin: 20px 0 0 0;">Sincerely,</p>
                             <p style="margin: 0;">The Transcribr Team</p>
                         </td>
@@ -620,7 +716,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0; color: #FF0000;">Account Suspended</h1>
                         </td>
                     </tr>
@@ -728,7 +824,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Account Deleted</h1>
                         </td>
                     </tr>
@@ -883,7 +979,7 @@ export class TemplateService {
                         <tr>
                             <td bgcolor="#ffffff" align="center" valign="top"
                                 style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                                <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                                <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                                 <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Subscription Renewal</h1>
                             </td>
                         </tr>
@@ -997,7 +1093,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Password Successfully Reset</h1>
                         </td>
                     </tr>
@@ -1103,7 +1199,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">Password Updated</h1>
                         </td>
                     </tr>
@@ -1209,7 +1305,7 @@ export class TemplateService {
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>
                         <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 8px 8px 0px 0px; color: #1a1a1a; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 700; line-height: 36px;">
-                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712401/Transcribr_a8vyhy.svg" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
+                            <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="150" height="auto" style="display: block; border: 0px;" alt="Transcribr Logo">
                             <h1 style="font-size: 30px; font-weight: 700; margin: 30px 0 0 0;">You're on the Waitlist!</h1>
                         </td>
                     </tr>
