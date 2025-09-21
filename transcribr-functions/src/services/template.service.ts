@@ -93,7 +93,7 @@ export class TemplateService {
                             <p style="margin: 20px 0 0 0;">Welcome to the Transcribr family! We're thrilled to have you join us.</p>
                             <p style="margin: 20px 0 0 0;">Get ready to experience professional AI-powered transcription with synchronized playback, speaker identification, and real-time editing. We're here to make your audio-to-text journey seamless and accurate.</p>
                             <p style="margin: 30px 0 0 0; text-align: center;">
-                                <a href="https://transcribr.org" target="_blank" class="button">Start Transcribing Now</a>
+                                <a href="https://app.transcribr.org" target="_blank" class="button">Start Transcribing Now</a>
                             </p>
                             <p style="margin: 40px 0 0 0;">If you have any questions, don't hesitate to reach out to our <a href="mailto:support@transcribr.org" style="color: #6C63FF; text-decoration: none;">support team</a>.</p>
                             <p style="margin: 20px 0 0 0;">Happy Transcribing!</p>
@@ -1210,7 +1210,7 @@ export class TemplateService {
                             </p>
                             <p style="margin: 20px 0 0 0;">If you did not make this change, please contact our <a href="mailto:support@transcribr.org" style="color: #6C63FF; text-decoration: none;">support team</a> immediately to secure your account.</p>
                             <p style="margin: 30px 0 0 0; text-align: center;">
-                                <a href="https://app.transcribr.org" target="_blank" class="button">Go to Dashboard</a>
+                                <a href="https://app.transcribr.org/dashboard/transcript" target="_blank" class="button">Go to Dashboard</a>
                             </p>
                             <p style="margin: 40px 0 0 0;">Best regards,</p>
                             <p style="margin: 0;">The Transcribr Team</p>
