@@ -10,6 +10,7 @@ import { ErrorService } from "./services/error.service";
 import { isValidPageData } from "./models/schema/page.schema";
 import { PaginationDto } from "./models/dto/pagination.dto";
 import { MailService } from "./services/mail.service";
+import { PushService } from "./services/push.service";
 
 admin.initializeApp();
 const db = new WaitlistService(admin.firestore());
@@ -119,6 +120,36 @@ export const getIntendees = functions.https.onRequest(async (req, res) => {
     } catch (e) {
       return res.status(400).json({
         error: "BAD REQUEST",
+        message: ErrorService.extractMessage(e),
+      });
+    }
+  });
+});
+
+export const sendPush = functions.https.onRequest(async (req, res) => {
+  return await cors(req, res, async () => {
+    if (req.method !== "POST") {
+      return res.status(405).json({
+        error: "METHOD NOT ALLOWED",
+        message: "Only POST requests are allowed",
+      });
+    }
+    try {
+      const { topic, title, body, data } = req.body;
+      if (!topic || !title || !body) {
+        return res.status(400).json({
+          error: "INVALID PAYLOAD",
+          message: "Missing 'topic', 'title', or 'body' in request body",
+        });
+      }
+      const pushService = new PushService(admin.messaging());
+      await pushService.sendPush(topic, title, body, data);
+      return res
+        .status(200)
+        .json({ message: "Push notification sent successfully." });
+    } catch (e) {
+      return res.status(500).json({
+        error: "INTERNAL SERVER ERROR",
         message: ErrorService.extractMessage(e),
       });
     }
