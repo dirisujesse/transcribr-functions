@@ -5,6 +5,9 @@ import { SubscriptionRemiderBody, TemplateService } from "./template.service";
 export class MailService {
   private templateService: TemplateService;
   private transporter: nodemailer.Transporter;
+  private urlRegex =
+    /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/gi;
+  private xmlRegex = /(?<=<TAG.*?>)(.*?)(?=<\/TAG>)/gi;
 
   constructor(password: string) {
     this.transporter = nodemailer.createTransport({
@@ -17,6 +20,16 @@ export class MailService {
       },
     });
     this.templateService = new TemplateService();
+  }
+
+  private sanitiseInput(input: string): string {
+    input = input.replace(this.urlRegex, "");
+    return input.replace(this.xmlRegex, "");
+  }
+
+  private sanitiseName(name: string): string {
+    name = this.sanitiseInput(name);
+    return name.split(" ")[0];
   }
 
   private async sendMail(
@@ -38,17 +51,25 @@ export class MailService {
   }
 
   sendWelcomeEmail(to: string, name: string) {
-    const html = this.templateService.getWelcomeTemplate(name);
+    const html = this.templateService.getWelcomeTemplate(
+      this.sanitiseName(name)
+    );
     this.sendMail(to, "Welcome to Transcribr!", html);
   }
 
   sendVerifyEmail(to: string, name: string, otp: string) {
-    const html = this.templateService.getEmailVerifyTemplate(name, otp);
+    const html = this.templateService.getEmailVerifyTemplate(
+      this.sanitiseName(name),
+      otp
+    );
     this.sendMail(to, "Verify Your Email Address for Transcribr", html);
   }
 
   sendVerifiedEmail(to: string, name: string) {
-    const html = this.templateService.getEmailVerifiedTemplate(name, to);
+    const html = this.templateService.getEmailVerifiedTemplate(
+      this.sanitiseName(name),
+      to
+    );
     this.sendMail(to, "Your Transcribr Account is Fully Verified!", html);
   }
 
@@ -59,7 +80,7 @@ export class MailService {
     title: string
   ) {
     const html = this.templateService.getTranscriptReadyTemplate(
-      name,
+      this.sanitiseName(name),
       link,
       title
     );
@@ -67,17 +88,26 @@ export class MailService {
   }
 
   sendPasswordResetEmail(to: string, name: string, otp: string) {
-    const html = this.templateService.getPasswordResetTemplate(name, otp);
+    const html = this.templateService.getPasswordResetTemplate(
+      this.sanitiseName(name),
+      otp
+    );
     this.sendMail(to, "Transcribr Password Reset Request", html);
   }
 
   sendAccountSuspensionEmail(to: string, name: string) {
-    const html = this.templateService.getAccountSuspendedTemplate(name, to);
+    const html = this.templateService.getAccountSuspendedTemplate(
+      this.sanitiseName(name),
+      to
+    );
     this.sendMail(to, "Your Transcribr Account Has Been Suspended", html);
   }
 
   sendAccountDeletionEmail(to: string, name: string) {
-    const html = this.templateService.getAccountDeletedTemplate(name, to);
+    const html = this.templateService.getAccountDeletedTemplate(
+      this.sanitiseName(name),
+      to
+    );
     this.sendMail(to, "Your Transcribr Account Has Been Deleted", html);
   }
 
@@ -88,14 +118,16 @@ export class MailService {
 
   sendPasswordUpdatedEmail(to: string, name: string, timestamp: string) {
     const html = this.templateService.getPasswordUpdatedTemplate(
-      name,
+      this.sanitiseName(name),
       timestamp
     );
     this.sendMail(to, "Your Transcribr Password Has Been Updated", html);
   }
 
   sendPasswordResetSuccessEmail(to: string, name: string) {
-    const html = this.templateService.getPasswordResetSuccessTemplate(name);
+    const html = this.templateService.getPasswordResetSuccessTemplate(
+      this.sanitiseName(name)
+    );
     this.sendMail(to, "Your Transcribr Password Has Been Reset", html);
   }
 
