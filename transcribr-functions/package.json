@@ -7,11 +7,11 @@
     "serve": "pnpm run build && firebase emulators:start --only functions,firestore",
     "shell": "pnpm run build && firebase functions:shell",
     "start": "pnpm run shell",
-    "deploy": "pnpm run build && firebase functions:secrets:set APP_EMAIL_PASSWORD && firebase deploy --only functions",
+    "deploy": "pnpm run build && firebase functions:secrets:set APP_EMAIL_PASSWORD && firebase deploy --only functions --debug",
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "20",
+    "node": "22",
     "pnpm": "10"
   },
   "main": "lib/index.js",
