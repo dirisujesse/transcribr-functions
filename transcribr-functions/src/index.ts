@@ -71,7 +71,7 @@ export const joinWaitlist = functions.https.onRequest(
           message: "Successfully joined waitlist",
         };
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendJoinedWaitlistEmail(intendee.email);
         return res.status(201).json(response);
@@ -82,7 +82,7 @@ export const joinWaitlist = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const getIntendees = functions.https.onRequest(async (req, res) => {
@@ -156,6 +156,37 @@ export const sendPush = functions.https.onRequest(async (req, res) => {
   });
 });
 
+export const subscribeToTopic = functions.https.onRequest(async (req, res) => {
+  return await cors(req, res, async () => {
+    if (req.method !== "POST") {
+      return res.status(405).json({
+        error: "METHOD NOT ALLOWED",
+        message: "Only POST requests are allowed",
+      });
+    }
+    try {
+      const { topic, token } = req.body;
+      if (!topic || !token) {
+        return res.status(400).json({
+          error: "INVALID PAYLOAD",
+          message: "Missing 'topic', 'title', or 'body' in request body",
+        });
+      }
+
+      const pushService = new PushService(admin.messaging());
+      await pushService.subscribe(token, topic);
+      return res
+        .status(200)
+        .json({ message: "Push notification sent successfully." });
+    } catch (e) {
+      return res.status(500).json({
+        error: "INTERNAL SERVER ERROR",
+        message: ErrorService.extractMessage(e),
+      });
+    }
+  });
+});
+
 export const sendWelcomeEmail = functions.https.onRequest(
   { secrets: ["APP_EMAIL_PASSWORD"] },
   async (req, res) => {
@@ -175,7 +206,7 @@ export const sendWelcomeEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendWelcomeEmail(to, name);
         return res
@@ -188,7 +219,7 @@ export const sendWelcomeEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendVerifyEmail = functions.https.onRequest(
@@ -210,7 +241,7 @@ export const sendVerifyEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendVerifyEmail(to, name, otp);
         return res
@@ -223,7 +254,7 @@ export const sendVerifyEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendVerifiedEmail = functions.https.onRequest(
@@ -245,7 +276,7 @@ export const sendVerifiedEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendVerifiedEmail(to, name);
         return res
@@ -258,7 +289,7 @@ export const sendVerifiedEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendTranscriptReadyEmail = functions.https.onRequest(
@@ -280,7 +311,7 @@ export const sendTranscriptReadyEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendTranscriptReadyEmail(to, name, link, title);
         return res
@@ -293,7 +324,7 @@ export const sendTranscriptReadyEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendPasswordResetEmail = functions.https.onRequest(
@@ -315,7 +346,7 @@ export const sendPasswordResetEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendPasswordResetEmail(to, name, otp);
         return res
@@ -328,7 +359,7 @@ export const sendPasswordResetEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendSubscriptionReminderEmail = functions.https.onRequest(
@@ -350,7 +381,7 @@ export const sendSubscriptionReminderEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendSubscriptionReminderEmail(to, data);
         return res
@@ -363,7 +394,7 @@ export const sendSubscriptionReminderEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendPasswordUpdatedEmail = functions.https.onRequest(
@@ -385,7 +416,7 @@ export const sendPasswordUpdatedEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendPasswordUpdatedEmail(to, name, timestamp);
         return res
@@ -398,7 +429,7 @@ export const sendPasswordUpdatedEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendAccountSuspensionEmail = functions.https.onRequest(
@@ -420,7 +451,7 @@ export const sendAccountSuspensionEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendAccountSuspensionEmail(to, name);
         return res
@@ -433,7 +464,7 @@ export const sendAccountSuspensionEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );
 
 export const sendAccountDeletionEmail = functions.https.onRequest(
@@ -455,7 +486,7 @@ export const sendAccountDeletionEmail = functions.https.onRequest(
           });
         }
         const mailService = new MailService(
-          process.env.APP_EMAIL_PASSWORD ?? ""
+          process.env.APP_EMAIL_PASSWORD ?? "",
         );
         await mailService.sendAccountDeletionEmail(to, name);
         return res
@@ -468,5 +499,5 @@ export const sendAccountDeletionEmail = functions.https.onRequest(
         });
       }
     });
-  }
+  },
 );

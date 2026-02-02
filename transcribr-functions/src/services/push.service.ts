@@ -4,13 +4,17 @@ import { log } from "firebase-functions/logger";
 export class PushService {
   constructor(private readonly messenger: Messaging) {}
 
+  async subscribe(token: string, topic: string): Promise<void> {
+    await this.messenger.subscribeToTopic(token, topic);
+  }
+
   async sendPush(
     topic: string,
     title: string,
     body: string,
     data?: {
       [key: string]: string;
-    }
+    },
   ): Promise<void> {
     try {
       await this.messenger.send({
