@@ -6,7 +6,7 @@ export class MailService {
   private templateService: TemplateService;
   private transporter: nodemailer.Transporter;
   private urlRegex =
-    /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/gi;
+    /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/gi;
   private xmlRegex = /(?<=<TAG.*?>)(.*?)(?=<\/TAG>)/gi;
 
   constructor(password: string) {

@@ -7,7 +7,7 @@ const intendeeSchema = new yup.ObjectSchema({
 export async function isValidIntendee(model: yup.AnyObject): Promise<boolean> {
   try {
     return await intendeeSchema.isValid(model);
-  } catch (e) {
+  } catch {
     return false;
   }
 }

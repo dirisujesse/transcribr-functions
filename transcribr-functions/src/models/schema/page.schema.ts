@@ -12,7 +12,7 @@ export async function isValidPageData(query: yup.AnyObject): Promise<boolean> {
   try {
     log(query);
     return await paginationSchema.isValid(query);
-  } catch (e) {
+  } catch {
     return false;
   }
 }

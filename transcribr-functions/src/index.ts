@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
@@ -9,6 +8,7 @@ import { IntendeeDto } from "./models/dto/intendee.dto";
 import { ErrorService } from "./services/error.service";
 import { isValidPageData } from "./models/schema/page.schema";
 import { PaginationDto } from "./models/dto/pagination.dto";
+import { ResponseDto } from "./models/dto/response.dto";
 import { MailService } from "./services/mail.service";
 import { PushService } from "./services/push.service";
 

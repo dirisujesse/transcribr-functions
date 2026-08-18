@@ -1,4 +1,4 @@
-interface ResponseDto<T> {
+export interface ResponseDto<T> {
   data: T;
   message: string;
 }
