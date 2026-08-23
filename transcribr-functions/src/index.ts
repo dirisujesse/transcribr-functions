@@ -11,6 +11,10 @@ import { PaginationDto } from "./models/dto/pagination.dto";
 import { ResponseDto } from "./models/dto/response.dto";
 import { MailService } from "./services/mail.service";
 import { PushService } from "./services/push.service";
+import {
+  isInternalCaller,
+  UNAUTHORISED_BODY,
+} from "./services/internal-auth.service";
 
 admin.initializeApp();
 const db = new WaitlistService(admin.firestore());
@@ -510,7 +514,13 @@ export const sendAccountDeletionEmail = functions.https.onRequest(
  * customer accounts, and it says so.
  */
 export const sendAdminOtpEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    // Stated rather than left to the platform: one of these silently became
+    // IAM-private on a redeploy, which rejected our own server at the edge.
+    // The gate that matters is isInternalCaller() below.
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -518,6 +528,12 @@ export const sendAdminOtpEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Checked before anything is parsed. This function composes mail from
+      // caller-supplied content, so an unauthenticated caller is an open relay.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name, otp } = req.body ?? {};
@@ -563,7 +579,13 @@ export const sendAdminOtpEmail = functions.https.onRequest(
  * campaign look fully delivered.
  */
 export const sendBroadcastEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    // Stated rather than left to the platform: one of these silently became
+    // IAM-private on a redeploy, which rejected our own server at the edge.
+    // The gate that matters is isInternalCaller() below.
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -571,6 +593,12 @@ export const sendBroadcastEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Checked before anything is parsed. This function composes mail from
+      // caller-supplied content, so an unauthenticated caller is an open relay.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name, subject, body, unsubscribe_url: unsubscribeUrl } =
@@ -612,7 +640,13 @@ export const sendBroadcastEmail = functions.https.onRequest(
  * is worth constraining on its own.
  */
 export const sendAdminInviteEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    // Stated rather than left to the platform: one of these silently became
+    // IAM-private on a redeploy, which rejected our own server at the edge.
+    // The gate that matters is isInternalCaller() below.
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -620,6 +654,12 @@ export const sendAdminInviteEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Checked before anything is parsed. This function composes mail from
+      // caller-supplied content, so an unauthenticated caller is an open relay.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const {
