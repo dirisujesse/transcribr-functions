@@ -34,6 +34,19 @@ const cors = corsLib.default({
   origin: allowedOrigins,
 });
 
+/**
+ * Deliberately NOT behind the internal key.
+ *
+ * This is a public signup endpoint — it is meant to be called by a browser on
+ * the marketing site, so requiring a server-side secret would break it by
+ * design. (The form that calls it, WaitlistForm.astro, is currently unused, but
+ * the endpoint's contract is still "anyone may join".)
+ *
+ * Its only guard is the CORS origin list, which is not a security control — a
+ * non-browser client ignores it. The exposure is bounded and low: somebody can
+ * add junk addresses to a waitlist. If that ever becomes a nuisance, the answer
+ * is a captcha or rate limiting, not an internal key.
+ */
 export const joinWaitlist = functions.https.onRequest(
   { secrets: ["APP_EMAIL_PASSWORD"] },
   async (req, res) => {
@@ -89,7 +102,9 @@ export const joinWaitlist = functions.https.onRequest(
   },
 );
 
-export const getIntendees = functions.https.onRequest(async (req, res) => {
+export const getIntendees = functions.https.onRequest(
+  { secrets: ["INTERNAL_API_KEY"], invoker: "public" },
+  async (req, res) => {
   res.set("Access-Control-Allow-Origin", allowedOrigins.join(","));
   res.set("Access-Control-Allow-Methods", allowedMethods.join(","));
   res.set("Access-Control-Allow-Headers", "*");
@@ -99,6 +114,13 @@ export const getIntendees = functions.https.onRequest(async (req, res) => {
         error: "METHOD NOT ALLOWED",
         message: "Only GET requests are allowed",
       });
+    }
+
+    // Called only by our own API. These are public HTTPS endpoints, so without
+    // this anyone who learns a URL can make us mail or notify anybody, from our
+    // own domain.
+    if (!isInternalCaller(req)) {
+      return res.status(401).json(UNAUTHORISED_BODY);
     }
     try {
       const isValid = await isValidPageData(req.query);
@@ -130,13 +152,22 @@ export const getIntendees = functions.https.onRequest(async (req, res) => {
   });
 });
 
-export const sendPush = functions.https.onRequest(async (req, res) => {
+export const sendPush = functions.https.onRequest(
+  { secrets: ["INTERNAL_API_KEY"], invoker: "public" },
+  async (req, res) => {
   return await cors(req, res, async () => {
     if (req.method !== "POST") {
       return res.status(405).json({
         error: "METHOD NOT ALLOWED",
         message: "Only POST requests are allowed",
       });
+    }
+
+    // Called only by our own API. These are public HTTPS endpoints, so without
+    // this anyone who learns a URL can make us mail or notify anybody, from our
+    // own domain.
+    if (!isInternalCaller(req)) {
+      return res.status(401).json(UNAUTHORISED_BODY);
     }
     try {
       const { topic, title, body, data } = req.body;
@@ -160,6 +191,18 @@ export const sendPush = functions.https.onRequest(async (req, res) => {
   });
 });
 
+/**
+ * Left public because its caller could not be identified.
+ *
+ * Nothing in the API, the web app or the landing page calls it, which points at
+ * the mobile app registering for push topics directly. Locking it on that guess
+ * would silently break push registration on a client whose source is not in
+ * this repository, and a broken notification is harder to notice than a
+ * spurious one.
+ *
+ * Worth closing once the caller is confirmed: subscribing arbitrary FCM tokens
+ * to topics is not nothing. Tracked as a follow-up.
+ */
 export const subscribeToTopic = functions.https.onRequest(async (req, res) => {
   return await cors(req, res, async () => {
     if (req.method !== "POST") {
@@ -192,7 +235,10 @@ export const subscribeToTopic = functions.https.onRequest(async (req, res) => {
 });
 
 export const sendWelcomeEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -200,6 +246,13 @@ export const sendWelcomeEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name } = req.body;
@@ -227,7 +280,10 @@ export const sendWelcomeEmail = functions.https.onRequest(
 );
 
 export const sendVerifyEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -235,6 +291,13 @@ export const sendVerifyEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name, otp } = req.body;
@@ -262,7 +325,10 @@ export const sendVerifyEmail = functions.https.onRequest(
 );
 
 export const sendVerifiedEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -270,6 +336,13 @@ export const sendVerifiedEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name } = req.body;
@@ -297,7 +370,10 @@ export const sendVerifiedEmail = functions.https.onRequest(
 );
 
 export const sendTranscriptReadyEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -305,6 +381,13 @@ export const sendTranscriptReadyEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name, link, title } = req.body;
@@ -332,7 +415,10 @@ export const sendTranscriptReadyEmail = functions.https.onRequest(
 );
 
 export const sendPasswordResetEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -340,6 +426,13 @@ export const sendPasswordResetEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name, otp } = req.body;
@@ -367,7 +460,10 @@ export const sendPasswordResetEmail = functions.https.onRequest(
 );
 
 export const sendSubscriptionReminderEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -375,6 +471,13 @@ export const sendSubscriptionReminderEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, data } = req.body;
@@ -402,7 +505,10 @@ export const sendSubscriptionReminderEmail = functions.https.onRequest(
 );
 
 export const sendPasswordUpdatedEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -410,6 +516,13 @@ export const sendPasswordUpdatedEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name, timestamp } = req.body;
@@ -437,7 +550,10 @@ export const sendPasswordUpdatedEmail = functions.https.onRequest(
 );
 
 export const sendAccountSuspensionEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -445,6 +561,13 @@ export const sendAccountSuspensionEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name } = req.body;
@@ -472,7 +595,10 @@ export const sendAccountSuspensionEmail = functions.https.onRequest(
 );
 
 export const sendAccountDeletionEmail = functions.https.onRequest(
-  { secrets: ["APP_EMAIL_PASSWORD"] },
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
   async (req, res) => {
     return await cors(req, res, async () => {
       if (req.method !== "POST") {
@@ -480,6 +606,13 @@ export const sendAccountDeletionEmail = functions.https.onRequest(
           error: "METHOD NOT ALLOWED",
           message: "Only POST requests are allowed",
         });
+      }
+
+      // Called only by our own API. These are public HTTPS endpoints, so
+      // without this anyone who learns a URL can make us mail or notify
+      // anybody, from our own domain.
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
       }
       try {
         const { to, name } = req.body;
