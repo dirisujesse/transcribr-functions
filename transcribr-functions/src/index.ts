@@ -501,3 +501,168 @@ export const sendAccountDeletionEmail = functions.https.onRequest(
     });
   },
 );
+
+/**
+ * Sign-in code for the back office.
+ *
+ * Separate from sendVerifyEmail because the two are different things wearing
+ * similar shapes: this one admits somebody to a console that can delete
+ * customer accounts, and it says so.
+ */
+export const sendAdminOtpEmail = functions.https.onRequest(
+  { secrets: ["APP_EMAIL_PASSWORD"] },
+  async (req, res) => {
+    return await cors(req, res, async () => {
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "METHOD NOT ALLOWED",
+          message: "Only POST requests are allowed",
+        });
+      }
+      try {
+        const { to, name, otp } = req.body ?? {};
+        if (!to || !otp) {
+          return res.status(400).json({
+            error: "INVALID PAYLOAD",
+            message: "Missing 'to' or 'otp' in request body",
+          });
+        }
+
+        // Refused outright for anything but a company address. The caller
+        // already checks this, but an endpoint that mails a sign-in code
+        // anywhere it is told to is worth locking down on its own.
+        if (!`${to}`.toLowerCase().endsWith("@transcribr.org")) {
+          return res.status(403).json({
+            error: "FORBIDDEN",
+            message: "Back-office codes are only sent to transcribr.org addresses",
+          });
+        }
+
+        const mailService = new MailService(
+          process.env.APP_EMAIL_PASSWORD ?? "",
+        );
+        await mailService.sendAdminOtpEmail(to, name ?? to, otp);
+        return res.status(200).json({ message: "Sign-in code sent." });
+      } catch (e) {
+        return res.status(500).json({
+          error: "INTERNAL SERVER ERROR",
+          message: ErrorService.extractMessage(e),
+        });
+      }
+    });
+  },
+);
+
+/**
+ * One message of a campaign.
+ *
+ * Called once per recipient by the back office's broadcast worker, which owns
+ * batching, pacing and the opt-out check. This endpoint's only jobs are to
+ * render safely and to report honestly whether the send succeeded — the caller
+ * counts failures per recipient, so a swallowed error here would make every
+ * campaign look fully delivered.
+ */
+export const sendBroadcastEmail = functions.https.onRequest(
+  { secrets: ["APP_EMAIL_PASSWORD"] },
+  async (req, res) => {
+    return await cors(req, res, async () => {
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "METHOD NOT ALLOWED",
+          message: "Only POST requests are allowed",
+        });
+      }
+      try {
+        const { to, name, subject, body, unsubscribe_url: unsubscribeUrl } =
+          req.body ?? {};
+
+        if (!to || !subject || !body) {
+          return res.status(400).json({
+            error: "INVALID PAYLOAD",
+            message: "Missing 'to', 'subject', or 'body' in request body",
+          });
+        }
+
+        const mailService = new MailService(
+          process.env.APP_EMAIL_PASSWORD ?? "",
+        );
+        await mailService.sendBroadcastEmail(
+          to,
+          name ?? to,
+          subject,
+          body,
+          typeof unsubscribeUrl === "string" ? unsubscribeUrl : undefined,
+        );
+        return res.status(200).json({ message: "Message sent." });
+      } catch (e) {
+        return res.status(500).json({
+          error: "INTERNAL SERVER ERROR",
+          message: ErrorService.extractMessage(e),
+        });
+      }
+    });
+  },
+);
+
+/**
+ * Invitation to the back office.
+ *
+ * Locked to company addresses like the sign-in code endpoint: the caller checks
+ * too, but a function that mails an access-granting link anywhere it is told to
+ * is worth constraining on its own.
+ */
+export const sendAdminInviteEmail = functions.https.onRequest(
+  { secrets: ["APP_EMAIL_PASSWORD"] },
+  async (req, res) => {
+    return await cors(req, res, async () => {
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "METHOD NOT ALLOWED",
+          message: "Only POST requests are allowed",
+        });
+      }
+      try {
+        const {
+          to,
+          name,
+          invited_by: invitedBy,
+          role,
+          accept_url: acceptUrl,
+          expires_in_days: expiresInDays,
+        } = req.body ?? {};
+
+        if (!to || !acceptUrl || !role) {
+          return res.status(400).json({
+            error: "INVALID PAYLOAD",
+            message: "Missing 'to', 'role', or 'accept_url' in request body",
+          });
+        }
+
+        if (!`${to}`.toLowerCase().endsWith("@transcribr.org")) {
+          return res.status(403).json({
+            error: "FORBIDDEN",
+            message: "Invitations are only sent to transcribr.org addresses",
+          });
+        }
+
+        const mailService = new MailService(
+          process.env.APP_EMAIL_PASSWORD ?? "",
+        );
+        await mailService.sendAdminInviteEmail(
+          to,
+          name ?? to,
+          invitedBy ?? "A colleague",
+          role,
+          acceptUrl,
+          Number(expiresInDays) || 7,
+        );
+        return res.status(200).json({ message: "Invitation sent." });
+      } catch (e) {
+        return res.status(500).json({
+          error: "INTERNAL SERVER ERROR",
+          message: ErrorService.extractMessage(e),
+        });
+      }
+    });
+  },
+);

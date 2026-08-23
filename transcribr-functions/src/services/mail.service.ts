@@ -35,7 +35,8 @@ export class MailService {
   private async sendMail(
     to: string,
     subject: string,
-    html: string
+    html: string,
+    headers?: Record<string, string>
   ): Promise<void> {
     try {
       await this.transporter.sendMail({
@@ -43,10 +44,15 @@ export class MailService {
         to,
         subject,
         html,
+        ...(headers ? { headers } : {}),
       });
       log("Email sent successfully");
     } catch (error) {
       log(`Error sending email: ${error}`);
+      // Rethrown so the caller can report a failed send. Campaign delivery is
+      // counted per recipient, and swallowing this here would report every
+      // message as delivered no matter what the SMTP server said.
+      throw error;
     }
   }
 
@@ -134,5 +140,125 @@ export class MailService {
   sendJoinedWaitlistEmail(to: string) {
     const html = this.templateService.getWaitlistTemplate(to);
     this.sendMail(to, "Thanks for joining thewaitlist", html);
+  }
+  sendAdminOtpEmail(to: string, name: string, otp: string) {
+    const html = this.templateService.getAdminOtpTemplate(
+      this.sanitiseName(name),
+      otp
+    );
+    return this.sendMail(to, "Your Transcribr back-office sign-in code", html);
+  }
+
+  /**
+   * One campaign message.
+   *
+   * The subject is the sender's, so it is sanitised the same way any other
+   * untrusted string is. `List-Unsubscribe` is set alongside the footer link:
+   * Gmail and Outlook surface it as a one-click control, and its absence is one
+   * of the things that pushes bulk mail into spam.
+   */
+  sendBroadcastEmail(
+    to: string,
+    name: string,
+    subject: string,
+    body: string,
+    unsubscribeUrl?: string
+  ) {
+    const html = this.templateService.getBroadcastTemplate(
+      this.sanitiseName(name),
+      MailService.renderCampaignBody(body),
+      unsubscribeUrl
+    );
+
+    const headers = unsubscribeUrl
+      ? {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        }
+      : undefined;
+
+    return this.sendMail(
+      to,
+      this.sanitiseInput(subject).slice(0, 200) || "A note from Transcribr",
+      html,
+      headers
+    );
+  }
+
+  sendAdminInviteEmail(
+    to: string,
+    name: string,
+    invitedBy: string,
+    role: string,
+    acceptUrl: string,
+    expiresInDays: number
+  ) {
+    const html = this.templateService.getAdminInviteTemplate(
+      this.sanitiseName(name),
+      this.sanitiseName(invitedBy),
+      role,
+      acceptUrl,
+      expiresInDays
+    );
+    return this.sendMail(
+      to,
+      "You have been invited to the Transcribr back office",
+      html
+    );
+  }
+
+  /**
+   * Renders the small markdown subset campaigns are authored in.
+   *
+   * Escaping happens first and unconditionally; only then is the known-safe
+   * markup introduced. Doing it the other way round — rendering then escaping,
+   * or trusting the input because "only staff can write it" — is how a mailing
+   * to the entire user base becomes an injection vector. A back-office account
+   * is exactly what an attacker would want for that.
+   */
+  static renderCampaignBody(body: string): string {
+    const escaped = (body ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+    const paragraphs = escaped
+      .split(/\n{2,}/)
+      .map((block) => block.trim())
+      .filter(Boolean);
+
+    const inline = (text: string): string =>
+      text
+        // Links, restricted to http(s): a javascript: or data: href would
+        // survive the escaping above, since neither uses angle brackets.
+        .replace(
+          /\[([^\]]{1,120})\]\((https?:\/\/[^\s)]{1,300})\)/g,
+          '<a href="$2" target="_blank" style="color:#5B50E8; text-decoration:underline;">$1</a>'
+        )
+        .replace(/\*\*([^*]{1,300})\*\*/g, "<strong>$1</strong>")
+        .replace(/(^|[^*])\*([^*]{1,300})\*/g, "$1<em>$2</em>")
+        .replace(/\n/g, "<br />");
+
+    return paragraphs
+      .map((block) => {
+        const lines = block.split("\n");
+        const isList = lines.every((line) => /^\s*[-*]\s+/.test(line));
+
+        if (isList) {
+          const items = lines
+            .map(
+              (line) =>
+                `<li style="margin:0 0 6px 0;">${inline(
+                  line.replace(/^\s*[-*]\s+/, "")
+                )}</li>`
+            )
+            .join("");
+          return `<ul style="margin:0 0 18px 0; padding-left:22px;">${items}</ul>`;
+        }
+
+        return `<div style="margin:0 0 18px 0;">${inline(block)}</div>`;
+      })
+      .join("");
   }
 }
