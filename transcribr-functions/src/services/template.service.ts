@@ -1572,4 +1572,210 @@ export class TemplateService {
     const template = Handlebars.compile(source);
     return template(data);
   }
+
+  /**
+   * The shared frame every Transcribr email uses.
+   *
+   * The templates above each carry their own copy of this markup, which is how
+   * the file grew to fourteen near-identical shells. The feed templates below
+   * share one instead — the head, logo, card and footer are the parts that must
+   * never drift between emails, and a change to the footer should not be
+   * fourteen edits. The older ones are left alone rather than rewritten here.
+   */
+  private feedShell(params: {
+    preheader: string;
+    eyebrow: string;
+    heading: string;
+    body: string;
+  }): string {
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
+  <title>${params.heading}</title>
+  <style type="text/css">
+    body, table, td, a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
+    table, td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
+    img { border:0; height:auto; line-height:100%; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic; }
+    table { border-collapse:collapse !important; }
+    body { height:100% !important; margin:0 !important; padding:0 !important; width:100% !important; }
+    a[x-apple-data-detectors] { color:inherit !important; text-decoration:none !important; font-size:inherit !important; font-family:inherit !important; font-weight:inherit !important; line-height:inherit !important; }
+    @media screen and (max-width:600px) {
+      .wrap { width:100% !important; }
+      .gutter { padding-left:24px !important; padding-right:24px !important; }
+      .h1 { font-size:26px !important; line-height:33px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .e-bg { background-color:#0E0C24 !important; }
+      .e-card { background-color:#17143E !important; border-color:#302A73 !important; }
+      .e-ink, .e-ink strong { color:#F1EFFF !important; }
+      .e-mut { color:#B7B4DD !important; }
+      .e-sub { background-color:#1C1848 !important; border-color:#302A73 !important; }
+      .e-hr { border-top-color:#302A73 !important; }
+      .e-panel { background-color:#221C56 !important; border-color:#3A3388 !important; }
+      .e-accent { color:#A79EFF !important; }
+      .e-eyebrow { background-color:#262066 !important; }
+      .e-chip-g { background-color:#12351F !important; color:#6FD79B !important; }
+      .e-chip-p { background-color:#262066 !important; color:#B3AAFF !important; }
+      .e-foot, .e-foot a { color:#9A97C4 !important; }
+      .e-logo { background-color:#F3F2FA !important; border-radius:8px !important; padding:6px 8px !important; }
+    }
+    [data-ogsc] .e-card { background-color:#17143E !important; }
+    [data-ogsc] .e-ink { color:#F1EFFF !important; }
+    [data-ogsc] .e-mut { color:#B7B4DD !important; }
+    [data-ogsc] .e-sub { background-color:#1C1848 !important; }
+    [data-ogsc] .e-panel { background-color:#221C56 !important; }
+    [data-ogsc] .e-accent { color:#A79EFF !important; }
+  </style>
+</head>
+<body class="e-bg" style="margin:0 !important; padding:0 !important; background-color:#F3F2FA;">
+  <span style="display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; overflow:hidden; mso-hide:all; font-size:1px; line-height:1px;">${params.preheader}</span>
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="e-bg" style="width:100%; background-color:#F3F2FA;">
+    <tr>
+      <td align="center" style="padding:32px 12px 40px 12px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" class="wrap" style="width:600px; max-width:600px;">
+          <tr>
+            <td align="left" class="e-logo" style="padding:0 8px 18px 8px;">
+              <img src="https://res.cloudinary.com/jesse-dirisu/image/upload/v1757712400/Transcribr_juxhs6.png" width="128" alt="Transcribr" style="display:block; border:0; width:128px; max-width:128px;" />
+            </td>
+          </tr>
+          <tr>
+            <td bgcolor="#FFFFFF" class="e-card" style="border:1px solid #E4E1F5; border-radius:18px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;">
+                <tr><td height="4" bgcolor="#5B50E8" style="height:4px; line-height:4px; font-size:0; border-radius:18px 18px 0 0;">&nbsp;</td></tr>
+                <tr>
+                  <td class="gutter" style="padding:38px 40px 40px 40px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 18px 0;"><tr>
+                      <td bgcolor="#EFEDFD" class="e-eyebrow e-accent" style="border-radius:20px; padding:7px 14px; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:12px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color:#5B50E8; line-height:16px; mso-line-height-rule:exactly;">${params.eyebrow}</td>
+                    </tr></table>
+                    <h1 class="h1 e-ink" style="margin:0; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:32px; font-weight:700; letter-spacing:-0.7px; line-height:40px; mso-line-height-rule:exactly; color:#1B1D26;">${params.heading}</h1>
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;">
+                      ${params.body}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td class="gutter e-foot" align="center" style="padding:26px 24px 0 24px; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:13px; line-height:21px; mso-line-height-rule:exactly; color:#6E7186;">
+              <div><a href="https://transcribr.org" target="_blank" style="color:#6E7186; text-decoration:underline;">transcribr.org</a> &nbsp;&middot;&nbsp; <a href="mailto:support@transcribr.org" style="color:#6E7186; text-decoration:underline;">support@transcribr.org</a> &nbsp;&middot;&nbsp; <a href="https://app.transcribr.org/dashboard/profile" target="_blank" style="color:#6E7186; text-decoration:underline;">Email preferences</a></div>
+              <div style="padding-top:8px;">&copy; ${this.year} Transcribr. All rights reserved.</div>
+              <div style="padding-top:8px;">You received this because you have a Transcribr account. <a href="https://app.transcribr.org/dashboard/profile" target="_blank" style="color:#6E7186; text-decoration:underline;">Unsubscribe</a> from product notifications.</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+  }
+
+  /** One paragraph of body copy, in the shell's type scale. */
+  private feedParagraph(html: string): string {
+    return `<tr><td style="padding-top:22px;">
+      <div class="e-mut" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:16px; line-height:26px; mso-line-height-rule:exactly; color:#5C5F70;">${html}</div></td></tr>`;
+  }
+
+  /** The primary call to action. */
+  private feedButton(link: string, label: string): string {
+    return `<tr><td style="padding-top:22px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0;"><tr>
+        <td align="center" bgcolor="#5B50E8" class="e-btn" style="border-radius:10px; padding:15px 30px; mso-padding-alt:15px 30px;">
+          <a href="${link}" target="_blank" style="display:block; color:#ffffff; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:16px; font-weight:700; line-height:20px; mso-line-height-rule:exactly; text-decoration:none; letter-spacing:-0.1px;">${label}</a>
+        </td></tr></table></td></tr>`;
+  }
+
+  /**
+   * A new episode of a watched show has been transcribed.
+   *
+   * Distinct from the ordinary transcript-ready mail on purpose: nobody
+   * uploaded this one. The show is named alongside the episode, because the
+   * recipient's question on seeing it is "which of my feeds is this?", and the
+   * mail has to make sense to someone who set this up weeks ago and has not
+   * thought about it since.
+   */
+  getFeedTranscriptReadyTemplate(
+    name: string,
+    link: string,
+    title: string,
+    showTitle: string
+  ): string {
+    const chip = `<tr><td style="padding-top:22px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="e-sub" style="width:100%; border:1px solid #E4E1F5; border-radius:14px; background-color:#FBFAFF;"><tr>
+        <td style="padding:22px 22px 24px 22px; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;">
+          <div class="e-ink" style="font-size:17px; font-weight:700; color:#1B1D26; line-height:24px; mso-line-height-rule:exactly;">${title}</div>
+          <div class="e-mut" style="font-size:13px; color:#5C5F70; line-height:18px; mso-line-height-rule:exactly; padding-top:6px;">New episode of ${showTitle} &middot; transcribed automatically</div>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;"><tr>
+            <td bgcolor="#E4F5E9" class="e-chip-g" style="border-radius:20px; padding:6px 12px; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:12px; font-weight:700; color:#0F8A46; line-height:16px; mso-line-height-rule:exactly;">&bull; Transcribed</td>
+            <td width="8" style="width:8px;">&nbsp;</td>
+            <td bgcolor="#EFEDFD" class="e-chip-p" style="border-radius:20px; padding:6px 12px; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:12px; font-weight:700; color:#5B50E8; line-height:16px; mso-line-height-rule:exactly;">Speaker labels</td>
+          </tr></table>
+        </td></tr></table></td></tr>`;
+
+    return this.feedShell({
+      preheader: `A new episode of ${showTitle} has been transcribed.`,
+      eyebrow: "New episode",
+      heading: "A new episode is ready",
+      body: [
+        this.feedParagraph(`Hi ${name},`),
+        this.feedParagraph(
+          `<strong>${showTitle}</strong> published a new episode, and Transcribr has already transcribed it. You did not have to do anything.`
+        ),
+        chip,
+        this.feedButton(link, "Read the transcript"),
+        this.feedParagraph(
+          `Best,<br /><span class="e-ink" style="color:#1B1D26; font-weight:700;">The Transcribr Team</span>`
+        ),
+      ].join("\n"),
+    });
+  }
+
+  /**
+   * A watched feed has stopped being watched.
+   *
+   * The whole point of the feature is that nobody has to check on it, which
+   * makes this the one event a person genuinely has to be told about: until
+   * they act, that show is not being transcribed at all.
+   */
+  getFeedDeactivatedTemplate(
+    name: string,
+    feedTitle: string,
+    reason: string,
+    link: string
+  ): string {
+    const detail = `<tr><td style="padding-top:22px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" class="e-sub" style="width:100%; border:1px solid #E4E1F5; border-radius:14px; background-color:#FBFAFF;"><tr>
+        <td style="padding:22px; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;">
+          <div class="e-ink" style="font-size:17px; font-weight:700; color:#1B1D26; line-height:24px; mso-line-height-rule:exactly;">${feedTitle}</div>
+          <div class="e-mut" style="font-size:13px; color:#5C5F70; line-height:18px; mso-line-height-rule:exactly; padding-top:6px;">Last error: ${reason}</div>
+        </td></tr></table></td></tr>`;
+
+    return this.feedShell({
+      preheader: `Transcribr has stopped watching ${feedTitle}.`,
+      eyebrow: "Action needed",
+      heading: "A podcast feed stopped",
+      body: [
+        this.feedParagraph(`Hi ${name},`),
+        this.feedParagraph(
+          `We tried to read <strong>${feedTitle}</strong> several times over the past few days and could not. Transcribr has stopped watching it, so new episodes of that show are <strong>not</strong> being transcribed.`
+        ),
+        detail,
+        this.feedParagraph(
+          `This usually means the feed address changed or the show moved host. Check the address and add the feed again — everything already transcribed is untouched.`
+        ),
+        this.feedButton(link, "Manage feeds"),
+        this.feedParagraph(
+          `Best,<br /><span class="e-ink" style="color:#1B1D26; font-weight:700;">The Transcribr Team</span>`
+        ),
+      ].join("\n"),
+    });
+  }
 }

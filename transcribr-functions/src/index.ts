@@ -414,6 +414,117 @@ export const sendTranscriptReadyEmail = functions.https.onRequest(
   },
 );
 
+/**
+ * A watched podcast published a new episode and it has been transcribed.
+ *
+ * Separate from sendTranscriptReadyEmail because nobody uploaded this one: the
+ * copy has to name the show and make sense to someone who set the feed up
+ * weeks ago and has not thought about it since.
+ */
+export const sendFeedTranscriptReadyEmail = functions.https.onRequest(
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
+  async (req, res) => {
+    return await cors(req, res, async () => {
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "METHOD NOT ALLOWED",
+          message: "Only POST requests are allowed",
+        });
+      }
+
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
+      }
+      try {
+        const { to, name, link, title, show_title } = req.body;
+        if (!to || !name || !link || !title || !show_title) {
+          return res.status(400).json({
+            error: "INVALID PAYLOAD",
+            message:
+              "Missing 'to', 'name', 'link', 'title', or 'show_title' in request body",
+          });
+        }
+        const mailService = new MailService(
+          process.env.APP_EMAIL_PASSWORD ?? "",
+        );
+        await mailService.sendFeedTranscriptReadyEmail(
+          to,
+          name,
+          link,
+          title,
+          show_title,
+        );
+        return res
+          .status(200)
+          .json({ message: "Feed transcript email sent successfully." });
+      } catch (e) {
+        return res.status(500).json({
+          error: "INTERNAL SERVER ERROR",
+          message: ErrorService.extractMessage(e),
+        });
+      }
+    });
+  },
+);
+
+/**
+ * A watched feed could not be read and is no longer being polled.
+ *
+ * The one event in this feature a person must be told about: until they act,
+ * that show is not being transcribed at all.
+ */
+export const sendFeedDeactivatedEmail = functions.https.onRequest(
+  {
+    secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],
+    invoker: "public",
+  },
+  async (req, res) => {
+    return await cors(req, res, async () => {
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "METHOD NOT ALLOWED",
+          message: "Only POST requests are allowed",
+        });
+      }
+
+      if (!isInternalCaller(req)) {
+        return res.status(401).json(UNAUTHORISED_BODY);
+      }
+      try {
+        const { to, name, feed_title, reason, link } = req.body;
+        if (!to || !name || !feed_title) {
+          return res.status(400).json({
+            error: "INVALID PAYLOAD",
+            message:
+              "Missing 'to', 'name', or 'feed_title' in request body",
+          });
+        }
+        const mailService = new MailService(
+          process.env.APP_EMAIL_PASSWORD ?? "",
+        );
+        await mailService.sendFeedDeactivatedEmail(
+          to,
+          name,
+          feed_title,
+          reason ?? "The feed could not be read",
+          link ?? "https://app.transcribr.org/dashboard/feeds",
+        );
+        return res
+          .status(200)
+          .json({ message: "Feed deactivation email sent successfully." });
+      } catch (e) {
+        return res.status(500).json({
+          error: "INTERNAL SERVER ERROR",
+          message: ErrorService.extractMessage(e),
+        });
+      }
+    });
+  },
+);
+
 export const sendPasswordResetEmail = functions.https.onRequest(
   {
     secrets: ["APP_EMAIL_PASSWORD", "INTERNAL_API_KEY"],

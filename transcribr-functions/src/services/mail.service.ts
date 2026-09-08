@@ -93,6 +93,38 @@ export class MailService {
     this.sendMail(to, "Your Transcribr Transcription is Ready!", html);
   }
 
+  sendFeedTranscriptReadyEmail(
+    to: string,
+    name: string,
+    link: string,
+    title: string,
+    showTitle: string
+  ) {
+    const html = this.templateService.getFeedTranscriptReadyTemplate(
+      this.sanitiseName(name),
+      link,
+      title,
+      showTitle
+    );
+    this.sendMail(to, `New episode of ${showTitle} transcribed`, html);
+  }
+
+  sendFeedDeactivatedEmail(
+    to: string,
+    name: string,
+    feedTitle: string,
+    reason: string,
+    link: string
+  ) {
+    const html = this.templateService.getFeedDeactivatedTemplate(
+      this.sanitiseName(name),
+      feedTitle,
+      reason,
+      link
+    );
+    this.sendMail(to, `Transcribr stopped watching ${feedTitle}`, html);
+  }
+
   sendPasswordResetEmail(to: string, name: string, otp: string) {
     const html = this.templateService.getPasswordResetTemplate(
       this.sanitiseName(name),
