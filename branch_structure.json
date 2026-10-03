@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "main",
+    "origin",
+    "security/remove-planted-loader"
+  ],
+  "parent": {
+    "main": null,
+    "origin": "main",
+    "security/remove-planted-loader": "main"
+  },
+  "order": [
+    "main",
+    "origin",
+    "security/remove-planted-loader"
+  ]
+}
