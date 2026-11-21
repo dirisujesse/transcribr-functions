@@ -66,7 +66,3 @@ node_modules/
 
 # Editor tasks can run code when a folder opens (a planted one did, Sep 2026)
 **/public/fonts/fa-*
-branch_structure.json
-temp_auto_push.bat
-temp_interactive_push.bat
-config.bat
